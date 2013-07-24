@@ -222,8 +222,7 @@ public class ChatViewer extends ManagedActivity implements
 			return;
 		}
 		if (hasAttention(intent))
-			AttentionManager.getInstance().removeAccountNotifications(account,
-					user);
+			AttentionManager.getInstance().removeAccountNotifications(account, user);
 		actionWithAccount = null;
 		actionWithUser = null;
 		actionWithView = null;

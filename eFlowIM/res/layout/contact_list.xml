@@ -176,7 +176,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/img1"
                     android:padding="8dp"
-                    android:text="文字稿件"
+                    android:text="校内公告"
                     android:textColor="#000"
                     android:textSize="17sp" />
 
@@ -211,7 +211,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/img1"
                     android:padding="8dp"
-                    android:text="图片稿件"
+                    android:text="待办事项"
                     android:textColor="#000"
                     android:textSize="17sp" />
 
@@ -246,7 +246,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/img1"
                     android:padding="8dp"
-                    android:text="音频稿件"
+                    android:text="院系通知"
                     android:textColor="#000"
                     android:textSize="17sp" />
 
@@ -281,7 +281,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/img1"
                     android:padding="8dp"
-                    android:text="视频稿件"
+                    android:text="公文传阅"
                     android:textColor="#000"
                     android:textSize="17sp" />
 
@@ -317,7 +317,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@id/img1"
                     android:padding="8dp"
-                    android:text="本地稿件"
+                    android:text="流程审批"
                     android:textColor="#000"
                     android:textSize="17sp" />
 

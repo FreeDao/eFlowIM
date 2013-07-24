@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="development_title">eFlowIM</string>
-    <string name="production_title">eFlowIM</string>
+    <string name="development_title">有信</string>
+    <string name="production_title">有信</string>
 </resources>
