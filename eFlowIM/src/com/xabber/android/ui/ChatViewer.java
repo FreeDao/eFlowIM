@@ -14,10 +14,14 @@
  */
 package com.xabber.android.ui;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +33,7 @@ import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -36,6 +41,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -46,20 +52,18 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.ClipboardManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
-import android.webkit.WebSettings.LayoutAlgorithm;
-import android.webkit.WebSettings.ZoomDensity;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -70,6 +74,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -194,16 +200,21 @@ public class ChatViewer extends ManagedActivity implements
 	private static final int CAMERA_WITH_DATA = 3023;
 	private static final int HANDLER_MSG_SEND_SUCCESS = 1;
 	private static final int HANDLER_MSG_SEND_PERCENT = 2;
+	
 	private static final int UPLOAD_IN_PROCESS = 10;
 	private static final int UPLOAD_INIT_PROCESS = 11;
 	private static final int UPLOAD_FILE_DONE = 12;
 	public static final int UPLOAD_SUCCESS_CODE = 1; //上传成功
+	private static final int DOWNLOAD_FILE_DONE_SUC = 13;
+	private static final int DOWNLOAD_FILE_DONE_FAI = 14;
 	
 	public String sCapturePath = "";
 	private OutgoingFileTransfer sendTransfer;
 	private Handler mHandler;
 	String mImagePath = "";
 	WebView webView;
+	ImageView imageView2;
+	ProgressDialog pd;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -356,7 +367,6 @@ public class ChatViewer extends ManagedActivity implements
 							return;
 						}
 						
-						View subview2 = getLayoutInflater().inflate(R.layout.pop_search, null);
 						String [] stp2 = actionWithMessage.getText().split("/");
 						String filan = ContactList.IMAGE_ROOT_PATH + stp2[stp2.length - 1];
 						if ( !actionWithMessage.isIncoming() &&  new File(filan).exists() ) {
@@ -365,17 +375,14 @@ public class ChatViewer extends ManagedActivity implements
 				            intent.setDataAndType(mUri, "image/*");
 				            startActivity(intent);
 						} else if (actionWithMessage.isIncoming()) {
-							WebSettings mWebSettings = webView.getSettings();
-//			                mWebSettings.setUseWideViewPort(true);
-//			                mWebSettings.setLoadWithOverviewMode(true);
-			                mWebSettings.setBuiltInZoomControls(true);
-//			                mWebSettings.setDisplayZoomControls(true);
-//			                mWebSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-							
-							webView.setVisibility(View.VISIBLE);
-							webView.loadUrl(actionWithMessage.getText());
-							webView.setWebViewClient(new WebViewClientDemo());
-							Toast.makeText(ChatViewer.this, "加载图片中...", Toast.LENGTH_SHORT).show();
+							showPOP(actionWithMessage.getText());
+//							WebSettings mWebSettings = webView.getSettings();
+//			                mWebSettings.setBuiltInZoomControls(true);
+//							
+//							webView.setVisibility(View.VISIBLE);
+//							webView.loadUrl(actionWithMessage.getText());
+//							webView.setWebViewClient(new WebViewClientDemo());
+//							Toast.makeText(ChatViewer.this, "加载图片中...", Toast.LENGTH_SHORT).show();
 						}
 						
 					}
@@ -388,6 +395,66 @@ public class ChatViewer extends ManagedActivity implements
 	}
 
 
+	public void showPOP(final String url) {
+		pd = new ProgressDialog(ChatViewer.this);
+		pd.setMessage("加载中...");
+		pd.show();
+		
+		View subview2 = getLayoutInflater().inflate(R.layout.pop_search2, null);
+		PopupWindow m_popupWindow = new PopupWindow(subview2, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT,true);
+		m_popupWindow.setFocusable(true);
+		m_popupWindow.setOutsideTouchable(true);
+		ColorDrawable dw = new ColorDrawable(-00000);
+		m_popupWindow.setBackgroundDrawable(new BitmapDrawable());
+		m_popupWindow.showAtLocation((View) webView, Gravity.TOP, 0, 0);
+		
+		imageView2 = (ImageView) subview2.findViewById(R.id.imageView2);
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Bitmap bitmap = getRemoteImage(new URL(url));
+					Message msg = new Message();
+					msg.what = DOWNLOAD_FILE_DONE_SUC;
+					msg.obj = bitmap;
+					mHandler.sendMessage(msg);
+					
+				} catch (MalformedURLException e) {
+					Message msg = new Message();
+					msg.what = DOWNLOAD_FILE_DONE_FAI;
+					mHandler.sendMessage(msg);
+					
+					e.printStackTrace();
+				} catch (Exception e) {
+					Message msg = new Message();
+					msg.what = DOWNLOAD_FILE_DONE_FAI;
+					mHandler.sendMessage(msg);
+				}
+				
+			}
+		}).start();
+		
+		
+	}
+	
+	public Bitmap getRemoteImage(final URL aURL) { 
+        try { 
+             final URLConnection conn = aURL.openConnection(); 
+             conn.connect(); 
+             final BufferedInputStream bis = new BufferedInputStream(conn.getInputStream()); 
+             final Bitmap bm = BitmapFactory.decodeStream(bis); 
+             bis.close();
+             return bm; 
+        } catch (IOException e) {
+//        	Toast.makeText(getApplicationContext(), "图片加载失败", Toast.LENGTH_SHORT).show();
+        }
+        return null; 
+   }
+	
+	
+	
 	class WebViewClientDemo extends WebViewClient { 
         @Override 
         // 在WebView中而不是默认浏览器中显示页面 
@@ -1092,11 +1159,13 @@ public class ChatViewer extends ManagedActivity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
-			if ( webView.getVisibility() == View.VISIBLE ){
-				webView.setVisibility(View.GONE);
-			}else if ( webView.getVisibility() == View.GONE ){
-				close();
-			}
+//			if ( webView.getVisibility() == View.VISIBLE ){
+//				webView.setVisibility(View.GONE);
+//			}else if ( webView.getVisibility() == View.GONE ){
+//				close();
+//			}
+			
+			close();
 			
 			return false;
 		}
@@ -1464,9 +1533,20 @@ public class ChatViewer extends ManagedActivity implements
 //					actionWithUser, "attachment://image-"+  filans);
 //			chatViewerAdapter.onChatChange(actionWithView, false);
 			
-			
-			
 			break;
+			
+		case DOWNLOAD_FILE_DONE_SUC:
+			Bitmap bp = (Bitmap)msg.obj;
+			imageView2.setImageBitmap(bp);
+			if ( pd.isShowing() ){
+				pd.dismiss();
+			}
+			break;
+			
+		case DOWNLOAD_FILE_DONE_FAI:
+			Toast.makeText(getApplicationContext(), "图片加载失败", Toast.LENGTH_SHORT).show();
+			break;
+			
 		default:
 			break;
 		}

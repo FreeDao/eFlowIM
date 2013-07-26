@@ -25,6 +25,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -353,21 +355,23 @@ public class NotificationManager implements OnInitializedListener,
 			int messageCount = 0;
 			for (MessageNotification messageNotification : messageNotifications)
 				messageCount += messageNotification.getCount();
-			MessageNotification message = messageNotifications
-					.get(messageNotifications.size() - 1);
+			MessageNotification message = messageNotifications.get(messageNotifications.size() - 1);
 
 			RemoteViews chatViews = new RemoteViews(
 					application.getPackageName(), R.layout.chat_notification);
 
 			Intent chatIntent = ChatViewer.createClearTopIntent(application,
 					message.getAccount(), message.getUser());
-			if (MUCManager.getInstance().hasRoom(message.getAccount(),
-					message.getUser()))
-				chatViews.setImageViewBitmap(R.id.icon, AvatarManager
-						.getInstance().getRoomBitmap(message.getUser()));
-			else
-				chatViews.setImageViewBitmap(R.id.icon, AvatarManager
-						.getInstance().getUserBitmap(message.getUser()));
+			if (MUCManager.getInstance().hasRoom(message.getAccount(),	message.getUser())){
+				Bitmap  bitmap = BitmapFactory.decodeResource(application.getResources(), R.drawable.ic_launcher);
+				chatViews.setImageViewBitmap(R.id.icon, bitmap);
+//				chatViews.setImageViewBitmap(R.id.icon, AvatarManager.getInstance().getRoomBitmap(message.getUser()));
+			}else{
+				Bitmap  bitmap = BitmapFactory.decodeResource(application.getResources(), R.drawable.ic_launcher);
+				chatViews.setImageViewBitmap(R.id.icon, bitmap);
+//				chatViews.setImageViewBitmap(R.id.icon, AvatarManager.getInstance().getUserBitmap(message.getUser()));
+			}
+			
 			chatViews.setTextViewText(R.id.title, RosterManager.getInstance()
 					.getName(message.getAccount(), message.getUser()));
 			String text;
@@ -424,7 +428,7 @@ public class NotificationManager implements OnInitializedListener,
 			}
 		}
 
-		persistentNotification.icon = R.drawable.ic_stat_normal;
+		persistentNotification.icon = R.drawable.ic_launcher;
 		persistentNotification.setLatestEventInfo(application, application
 				.getString(R.string.application_name), "",//connectionState
 				PendingIntent.getActivity(application, 0, persistentIntent,
@@ -434,11 +438,12 @@ public class NotificationManager implements OnInitializedListener,
 		persistentNotification.defaults = 0;
 		persistentNotification.sound = null;
 		persistentNotification.tickerText = null;
+		
 		if (Application.SDK_INT >= 14 && SettingsManager.eventsPersistent()) {
 			// Ongoing icons are in the left side, so always use it.
 			persistentNotification.when = startTime;
 			if (messageNotifications.isEmpty()) {
-				persistentNotification.icon = connected > 0 ? R.drawable.ic_stat_normal
+				persistentNotification.icon = connected > 0 ? R.drawable.ic_launcher
 						: R.drawable.ic_stat_offline;
 			} else {
 				persistentNotification.icon = connected > 0 ? R.drawable.ic_stat_message
@@ -448,7 +453,7 @@ public class NotificationManager implements OnInitializedListener,
 		} else {
 			// Ongoing icons are in the right side, so hide it if necessary.
 			if (messageNotifications.isEmpty()) {
-				persistentNotification.icon = connected > 0 ? R.drawable.ic_stat_normal
+				persistentNotification.icon = connected > 0 ? R.drawable.ic_launcher
 						: R.drawable.ic_stat_offline;
 				persistentNotification.when = startTime;
 				// Show ticker for the messages in active chat.

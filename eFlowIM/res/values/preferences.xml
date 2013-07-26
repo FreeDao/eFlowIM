@@ -175,7 +175,7 @@
     <bool name="events_lightning_default">true</bool>
 
     <string name="events_persistent_key">events_persistent</string>
-    <bool name="events_persistent_default">true</bool>
+    <bool name="events_persistent_default">false</bool>
 
     <string name="events_show_text_key">events_show_text</string>
     <bool name="events_show_text_default">true</bool>
