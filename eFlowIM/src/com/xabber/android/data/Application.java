@@ -268,7 +268,7 @@ public class Application extends android.app.Application {
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 		mFinalBitmap = FinalBitmap.create(getApplicationContext());
-        mFinalBitmap.configLoadfailImage(R.drawable.download_image_icon);
+        mFinalBitmap.configLoadfailImage(R.drawable.image_download_fail_icon);
         mFinalBitmap.configLoadingImage(R.drawable.download_image_icon);
         
         

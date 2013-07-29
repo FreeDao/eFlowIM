@@ -985,6 +985,7 @@ public class ChatViewer extends ManagedActivity implements
 	}
 	
 	public String doCompressBitmap(String mImagePath) {
+		Toast.makeText(this, "压缩图片中...", Toast.LENGTH_SHORT).show();
 		Bitmap bitmap = null;
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
@@ -1067,7 +1068,7 @@ public class ChatViewer extends ManagedActivity implements
 		
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("orderId", "111");
-		uploadUtil.uploadFile(sPath ,fileKey, "http://121.199.3.19:8080/xabber/p/file!upload",params);
+		uploadUtil.uploadFile(sPath ,fileKey, "http://121.199.3.19:8080/eFlowIM/p/file!upload",params);
 		
 		
 		/*xmpp的方式发送文件
@@ -1511,7 +1512,7 @@ public class ChatViewer extends ManagedActivity implements
 			break;
 			
 		case UPLOAD_INIT_PROCESS:
-			Log.i("", "init...  "+ msg.arg1);
+			Toast.makeText(this, "开始发送...", Toast.LENGTH_SHORT).show();
 			break;
 			
 		case UPLOAD_FILE_DONE:
@@ -1519,7 +1520,7 @@ public class ChatViewer extends ManagedActivity implements
 			Log.i("", "finish...  "+ result);
 			
 			String[] st2 = mImagePath.split("/");
-			String filans = "http://121.199.3.19:8080/xabber/upload/"+st2[st2.length-1];
+			String filans = "http://121.199.3.19:8080/share/"+st2[st2.length-1];
 //			Log.i("", "filans...  "+ filans);
 			
 			if ( msg.arg1 == UPLOAD_SUCCESS_CODE ){//上传成功后再发送消息出去
