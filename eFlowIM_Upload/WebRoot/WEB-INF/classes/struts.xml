@@ -20,5 +20,24 @@
 			<result name="success">index.jsp</result>
 			<result name="input">index.jsp</result>
 		</action>
+		
+		<action name="updatePersonalInfo" class="com.zhangke.action.FileUpload" method="updatePersonalInfo">
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		
+		<action name="doWeinXin" class="com.zhangke.action.FileUpload" method="doWeinXin">
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		
+		<action name="doWeinXinTest" class="com.zhangke.action.FileUpload" method="doWeinXinTest">
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		
+		<action name="formCau" class="com.zhangke.action.FileUpload" method="formCau">
+			<interceptor-ref name="defaultStack"/>
+			<result name="success">index.jsp</result>
+			<result name="input">index.jsp</result>
+		</action>
+		
 	</package>
 </struts>    
